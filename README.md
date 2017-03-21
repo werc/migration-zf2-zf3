@@ -2,6 +2,7 @@
 
 This quide (in progress) should provide steps that might help you migrating ZF2 application to ZF3.
 
+
 ### Where to start
 
 Choose one module in your application and start refactoring while your 
@@ -128,9 +129,11 @@ class LastItemsFactory
 In a factories for controller plugins, models or module service you can access services from $container variable
 without the line `$container = $container->getServiceLocator();`
 
-#### More to this topic####
+#### More to this topic
 
-- https://github.com/zendframework/zend-mvc/issues/103 
-- https://zendframework.github.io/zend-mvc/migration/to-v2-7/
+* https://github.com/zendframework/zend-mvc/issues/103 
+* https://zendframework.github.io/zend-mvc/migration/to-v2-7/
+
+
 
 ## 2. Stop zend-loader and switch to Composer autoloading on the module
