@@ -1,7 +1,7 @@
 # Migrating ZF2 to ZF3
 
 > This quide (in progress) should provide informations that might help you migrating ZF2 
-application to ZF3 in minimum steps.
+MVC application to ZF3 in minimum steps.
 
 
 ### Where to start
@@ -25,7 +25,7 @@ To **hide** this message insert into index.php:
 error_reporting(E_ALL ^ E_USER_DEPRECATED);
 ```
 
-You may have different error reporting rules for production environment but 
+> You may have different error reporting rules for production environment but 
 this will show all messages except `E_USER_DEPRECATED`. 
 
 ### Move dependency to factory
@@ -291,6 +291,8 @@ and with composer autoloading. Don't forget to dump cache if you have `config_ca
 * [ZF3 Autoloading](https://docs.zendframework.com/tutorials/migration/to-v3/application/#autoloading)
 * [Optimizing Composer's autoloader performance](http://mouf-php.com/optimizing-composer-autoloader-performance)
 
+
+## TODO: Switch to ZF3
 
 ## Contributions
 
