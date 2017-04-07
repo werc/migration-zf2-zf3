@@ -1,6 +1,6 @@
 # Migrating ZF2 to ZF3
 
-> This quide (in progress) should provide steps that might help you migrating ZF2 
+> This quide (in progress) should provide informations that might help you migrating ZF2 
 application to ZF3 in minimum steps.
 
 
@@ -132,8 +132,8 @@ In a factories for controller plugins, models or module service you can access s
 
 #### More to this topic
 
-* https://github.com/zendframework/zend-mvc/issues/103 
-* https://zendframework.github.io/zend-mvc/migration/to-v2-7/
+* [Deprecated error](https://github.com/zendframework/zend-mvc/issues/103)
+* [ZF2 Upgrading to 2.7](https://zendframework.github.io/zend-mvc/migration/to-v2-7/)
 
 
 
@@ -175,7 +175,7 @@ zf2-application
        └── template_map.php
 ```
 
-Now change the module structure as recommended in ZF3 version:
+Now change the module structure as recommended in ZF3 version (while still running ZF2):
 
 ```
 zf3-application
@@ -192,7 +192,7 @@ zf3-application
        │   ├── Model
        │   ├── Service
        │   ├── View
-       │   │    └── Helper
+       │   │   └── Helper
        │   └── Module.php 
        │    
        └── view
@@ -201,12 +201,95 @@ zf3-application
                    └── index.phtml
 ```
 
-TODO: Updates in Module.php file, composer.json structure ...
+Move the *Module.php* into `src` directory. You can remove `getAutoloaderConfig()` method. The file may contain only `getConfig()`:
+
+```php
+<?php
+namespace Album;
+
+use Zend\Config;
+
+class Module
+{
+    public function getConfig()
+    {
+        $config = new Config\Config(include __DIR__ . '/../config/module.config.php');
+        $router = Config\Factory::fromFile(__DIR__ . '/../config/router.ini', true);
+        $navigation = Config\Factory::fromFile(__DIR__ . '/../config/navigation.xml', true);
+        
+        $config->merge($router);
+        $config->merge($navigation);
+        
+        return $config;
+    }
+}
+```
+
+Because the *template_map.php* is moved to config directory (and also renamed), you need to update `template_map` path.
+
+module.config.php
+
+```php
+<?php
+namespace Album;
+
+return array(
+
+    ...
+    
+    'view_manager' => array(
+        'template_map' => include __DIR__ . '/template_map.config.php', // was 'template_map' => include __DIR__ . '/../template_map.php'
+        'template_path_stack' => array(
+            __DIR__ . '/../view'
+        )
+    ),
+    
+    ....
+);
+```
+
+And in the *template_map.config.php* file change the path or rebuild the file.
+
+> You should be using *template_map.config.php* for production to avoid performance expence. More informations in
+[view_manager](http://zf2.readthedocs.io/en/latest/modules/zend.view.quick-start.html#configuration) configuration.
+*templatemap_generator.php* was moved to the zend-view component with the 2.8.0 release, and is 
+available via ./vendor/bin/templatemap_generator.php.
+
+```php
+<?php
+return [
+    'album/album/index' => __DIR__ . '/../view/album/album/index.phtml',
+];
+```
+
+The last step is to update the *composer.json* autoload configuration as follows:
+
+```
+{
+  "name" : "ZF2 api",
+  "description" : "ZF management system",
+  "require" : {
+    "php" : ">=5.5.10",
+    "zendframework/zendframework" : "^2.5"
+  },
+  "autoload" : {
+    "psr-4" : {
+      "Album\\" : "module/Album/src/"
+    }
+  }
+}
+```
+
+and run `$ composer dump-autoload`.
+
+After rebuild of composer autoload you should be able to run module in ZF3 recomended structure under ZF2 version 
+and with composer autoloading. Don't forget to dump cache if you have `config_cache_enabled`.
 
 #### More to this topic
 
-* http://zf2.readthedocs.io/en/latest/modules/zend.module-manager.intro.html
-* https://docs.zendframework.com/tutorials/migration/to-v3/application/#autoloading
+* [ZF2 Module System](http://zf2.readthedocs.io/en/latest/modules/zend.module-manager.intro.html)
+* [ZF3 Autoloading](https://docs.zendframework.com/tutorials/migration/to-v3/application/#autoloading)
+* [Optimizing Composer's autoloader performance](http://mouf-php.com/optimizing-composer-autoloader-performance)
 
 
 ## Contributions
