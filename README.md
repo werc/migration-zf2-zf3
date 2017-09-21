@@ -1,6 +1,6 @@
 # Migrating ZF2 to ZF3
 
-> This quide (in progress) should provide informations that might help you migrating ZF2 
+> This quide should provide informations that might help you migrating ZF2 
 MVC application to ZF3 in minimum steps.
 
 
@@ -282,7 +282,7 @@ The last step is to update the *composer.json* autoload configuration as follows
 
 and run `$ composer dump-autoload`.
 
-After rebuild of composer autoload you should be able to run module in ZF3 recomended structure under ZF2 version 
+After rebuild of composer autoload you should be able to run module in ZF3 recommended structure under ZF2 version 
 and with composer autoloading. Don't forget to dump cache if you have `config_cache_enabled`.
 
 #### More to this topic
@@ -292,7 +292,101 @@ and with composer autoloading. Don't forget to dump cache if you have `config_ca
 * [Optimizing Composer's autoloader performance](http://mouf-php.com/optimizing-composer-autoloader-performance)
 
 
-## TODO: Switch to ZF3
+# Switching to ZF3 ~ Zend Framework
+
+At first read the upgrading and migration guide. After that check zendframework/ZendSkeletonApplication to see composer.json in particular.
+
+* [Tutorial Upgrading applications](https://docs.zendframework.com/tutorials/migration/to-v3/application/) 
+* [Migration guide](https://zendframework.github.io/zend-servicemanager/migration/)
+* [zendframework/ZendSkeletonApplication](https://github.com/zendframework/ZendSkeletonApplication)
+
+Insert into *composer.json* `autoload` section paths for modules your application has.
+If you are not sure what Zend Framework components you should include in composer `require` section, start with skeleton example and
+you will be promted later about missing components (zend-navigation, zend-validator, zend-paginator ...).
+
+> Case sensitive: In v3, service names are case sensitive, and are not normalized in any way.
+
+
+### FactoryInterface implementation
+
+Next step is to edit again all factories and let them implement `FactoryInterface`. So the `OutfitControllerFactory` 
+from previous example will be updated as:
+
+OutfitControllerFactory.php before
+
+```php
+<?php
+namespace Outfit\Controller;
+
+use Interop\Container\ContainerInterface; // since 2.6.0, required  by zendframework/zend-servicemanager
+use Outfit\Model;
+
+class OutfitControllerFactory
+{
+
+    public function __invoke(ContainerInterface $container)
+    {
+        $container = $container->getServiceLocator(); // in ZF3 you will delete this line
+
+        return new OutfitController($container->get(Model\Shops::class), $container->get('config'));
+    }
+}
+``` 
+
+Updated
+
+```php
+<?php
+namespace Outfit\Controller;
+
+use Zend\ServiceManager\Factory\FactoryInterface;
+use Interop\Container\ContainerInterface;
+use Outfit\Model;
+
+class OutfitControllerFactory implements FactoryInterface
+{
+
+    public function __invoke(ContainerInterface $container, $requestedName, array $options = null)
+    {
+        return new OutfitController($container->get(Model\Shops::class), $container->get('Config'));
+    }
+}
+``` 
+
+If you have controller without factory definition, use *Invokable factory* for that:
+
+module.config.php
+
+```php
+<?php
+namespace Outfit;
+
+use Zend\ServiceManager\Factory\InvokableFactory;
+
+return array(
+    'controllers' => array(
+        'factories' => array(
+            Controller\IndexController::class => InvokableFactory::class
+        ),
+    ),
+    
+    ...
+    
+```
+
+And that should be basically all steps to **finish migration**.
+
+## Some tips and recommendations
+
+* Avoid closures for implementing dependencies in Module.php and create factory file for that.
+* Avoid using initializers - `InitializerInterface`. Use delegators `DelegatorFactoryInterface` for better
+performance. 
+
+#### More to this topic
+
+* [Delegator Factories in Zend Framework 2](http://ocramius.github.io/blog/zend-framework-2-delegator-factories-explained/)
+* [zend-servicemanager - Delegators](https://docs.zendframework.com/zend-servicemanager/delegators/)
+
 
 ## Contributions
 
