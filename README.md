@@ -266,8 +266,6 @@ The last step is to update the *composer.json* autoload configuration as follows
 
 ```
 {
-  "name" : "ZF2 api",
-  "description" : "ZF management system",
   "require" : {
     "php" : ">=5.5.10",
     "zendframework/zendframework" : "^2.5"
@@ -386,7 +384,7 @@ performance.
 
 * [Delegator Factories in Zend Framework 2](http://ocramius.github.io/blog/zend-framework-2-delegator-factories-explained/)
 * [zend-servicemanager - Delegators](https://docs.zendframework.com/zend-servicemanager/delegators/)
-
+* [Using Delegators in Zend Framework](http://we-rc.com/blog/2018/01/20/using-delegators-in-zend-framework)
 
 ## Contributions
 
