@@ -3,6 +3,8 @@
 > This quide should provide informations that might help you migrating ZF2 
 MVC application to ZF3 in minimum steps.
 
+> Note: Before migrating ZF2 project into Laminas, migrate to ZF3 first.
+
 
 ### Where to start
 
